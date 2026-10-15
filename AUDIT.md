@@ -15,11 +15,11 @@ Current conditions and metrics, hourly and multi-day forecasts, saved-city searc
 ## Findings and Priorities
 
 1. **Fixed forecast timezone (addressed):** requests used `Asia/Bangkok` for every coordinate. Requests now use `timezone=auto`, build query parameters structurally, validate coordinate bounds, and have focused request-contract tests.
-2. **Unsafe saved-city state (remaining):** `AddCityPage.getSavedCities` force-unwraps the saved list; a first run without that preference can fail. Saved records are also parsed from comma-delimited strings without validation.
-3. **Network and UI errors (remaining):** forecast calls have no explicit timeout, non-success responses produce a generic exception, and screens do not consistently render request failures or retry actions.
+2. **Saved-city persistence (partially addressed):** a missing preference now resolves to an empty list, while malformed coordinates produce a retryable error state instead of a parse crash. Invalid records are not automatically repaired or removed.
+3. **Network and UI errors (partially addressed):** weather requests now have a 15-second timeout and typed transport, status, and payload errors. Home and saved-city screens expose retry actions; device-location errors still use a generic message.
 4. **Duplicated location logic (remaining):** weather and location services independently check location services and permissions.
 5. **Starter and deployment metadata (addressed):** package/web descriptions and Android/iOS labels had starter text or a stray slash; metadata now identifies Aero Aura. Android still uses `com.example.aeroaura` and debug signing for release builds.
-6. **Test baseline (partially addressed):** the original test expected a counter widget absent from the app. It was replaced with forecast URI and coordinate-bound tests. Flutter/Dart are not installed here, so tests, analysis, and builds remain unverified.
+6. **Test baseline (partially addressed):** the original test expected a counter widget absent from the app. It was replaced with forecast request, coordinate-bound, service failure/timeout/payload, and first-run empty saved-city tests. Flutter/Dart are not installed here, so tests, analysis, and builds remain unverified.
 7. **Dependency hygiene (remaining):** `sqflite` and `page_transition` are declared but unused in Dart source. Do not remove or upgrade dependencies until dependency resolution and platform builds can run.
 
 ## Suggested Next Work

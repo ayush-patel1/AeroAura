@@ -55,7 +55,7 @@ flutter test
 dart format --output=none --set-exit-if-changed lib test
 ```
 
-Tests cover forecast request construction and geographic coordinate bounds. Run these checks in an installed Flutter environment before treating them as passing.
+Tests cover forecast request construction, geographic coordinate bounds, HTTP failures, malformed responses, timeouts, and the empty saved-city first-run state. Run these checks in an installed Flutter environment before treating them as passing.
 
 ## API
 
@@ -82,8 +82,8 @@ Previously generated APKs are retained under [`readme_assets`](readme_assets/). 
 ## Known Limitations
 
 - Flutter is not installed in the current audit environment, so tests, analysis, and builds could not be run here.
-- Weather request failures and malformed API responses do not yet have a consistent typed error or user-facing retry flow.
-- Saved-city loading assumes well-formed persisted records; the missing-list case is not handled safely in all paths.
+- Weather requests have a 15-second timeout and typed transport/API/payload errors; the home and saved-city screens show retry actions. Device-location failures still use a generic message.
+- A missing saved-city preference now renders an empty state, and malformed coordinates render an error state; invalid stored entries are not automatically repaired or removed.
 - Location permission handling is duplicated between weather and location services.
 - Offline support caches a few home-screen values, not forecast data.
 - `sqflite` and `page_transition` are declared but do not appear in current Dart imports; verify dependency resolution and platform builds before removing them.

@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:aeroaura/models/weather.dart';
@@ -7,7 +8,26 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
+typedef WeatherRequest = Future<http.Response> Function(Uri uri);
+
+class WeatherServiceException implements Exception {
+  final String message;
+
+  const WeatherServiceException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class WeatherService {
+  WeatherService({
+    WeatherRequest? request,
+    this.requestTimeout = const Duration(seconds: 15),
+  }) : _request = request ?? http.get;
+
+  final WeatherRequest _request;
+  final Duration requestTimeout;
+
   Future<Weather> fetchWeather({double? latitude, double? longitude}) async {
     if ((latitude == null) != (longitude == null)) {
       throw ArgumentError('Latitude and longitude must be provided together.');
@@ -41,13 +61,34 @@ class WeatherService {
       latitude: position.latitude,
       longitude: position.longitude,
     );
-    final http.Response response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final String body = response.body;
-      final dynamic json = jsonDecode(body);
+    late final http.Response response;
+    try {
+      response = await _request(uri).timeout(requestTimeout);
+    } on TimeoutException {
+      throw const WeatherServiceException(
+          'Weather request timed out. Please try again.');
+    } on http.ClientException {
+      throw const WeatherServiceException(
+          'Could not connect to the weather service. Check your connection.');
+    }
+
+    if (response.statusCode != 200) {
+      throw WeatherServiceException(
+          'Weather service returned status ${response.statusCode}.');
+    }
+
+    try {
+      final dynamic json = jsonDecode(response.body);
+      if (json is! Map<String, dynamic>) {
+        throw const FormatException('Expected a JSON object.');
+      }
       return Weather.fromJson(json);
-    } else {
-      throw Exception('Failed to Load Weather');
+    } on FormatException {
+      throw const WeatherServiceException(
+          'Weather service returned invalid data. Please try again later.');
+    } on TypeError {
+      throw const WeatherServiceException(
+          'Weather service returned incomplete data. Please try again later.');
     }
   }
 

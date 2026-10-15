@@ -91,20 +91,24 @@ class _HomePageState extends State<HomePage> {
     var weatherService = WeatherService();
     futureWeather = weatherService.fetchWeather();
     // futureWeather = weatherService.fetchWeather(latitude: 28.61, longitude: 77.23);
-    var results = await Future.wait([futureWeather, futureLocation]);
-    Weather weather = results[0] as Weather;
-    Venue location = results[1] as Venue;
+    try {
+      var results = await Future.wait([futureWeather, futureLocation]);
+      Weather weather = results[0] as Weather;
+      Venue location = results[1] as Venue;
 
-    // Update the UI with the fetched data
-    setState(() {
-      wmoCode = weather.current["weather_code"].toString();
-      temp = double.parse(weather.current["temperature_2m"].toString());
-      uvIndex = double.parse(weather.hourly["uv_index"][0].toString());
-      city = location.city;
-      country = location.country;
+      if (!mounted) return;
+      setState(() {
+        wmoCode = weather.current["weather_code"].toString();
+        temp = double.parse(weather.current["temperature_2m"].toString());
+        uvIndex = double.parse(weather.hourly["uv_index"][0].toString());
+        city = location.city;
+        country = location.country;
 
-      saveLastValues();
-    });
+        saveLastValues();
+      });
+    } catch (_) {
+      if (mounted) setState(() {});
+    }
   }
 
   void saveLastValues() async {
@@ -151,6 +155,37 @@ class _HomePageState extends State<HomePage> {
                 primary: true,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
+                  SliverToBoxAdapter(
+                    child: FutureBuilder<Weather>(
+                      future: futureWeather,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasError) {
+                          return const SizedBox.shrink();
+                        }
+                        final error = snapshot.error;
+                        final message = error is WeatherServiceException
+                            ? error.message
+                            : 'Could not load weather. Check location access and connection, then try again.';
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          child: Column(
+                            children: [
+                              Text(
+                                message,
+                                textAlign: TextAlign.center,
+                              ),
+                              TextButton.icon(
+                                onPressed: fetchWeatherLocationData,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Try again'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                   const SizedBoxInSliver(height: 10, width: 0),
                   SliverToBoxAdapter(
                       child: FutureBuilder<Weather>(
