@@ -1,11 +1,11 @@
 {
-    "name": "aeroaura",
-    "short_name": "aeroaura",
+    "name": "Aero Aura",
+    "short_name": "Aero Aura",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Local weather, hourly conditions, and a seven-day forecast from Aero Aura.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
