@@ -31,12 +31,6 @@
 - [app-armeabi-v7a-release](readme_assets/app-armeabi-v7a-release.apk)
 - [app-x86_64-release](readme_assets/app-x86_64-release.apk)
 
-### 🛠️ My Changes
-
-<!-- List only what you actually built or modified -->
-- 
-- 
-- 
 
 ### 🌐 Data Sources
 
