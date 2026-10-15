@@ -12,7 +12,7 @@
 
 <p align='center'>Flutter weather app for Android with real-time conditions, hourly forecasts and a 7-day outlook for any city.</p>
 
-> Based on [AeroAura](https://github.com/Gaurav-Kushwaha-1225/AeroAura) by Gaurav Kushwaha, used under the MIT License.
+> Based on [AeroAura](https://github.com/ayush-patel1/AeroAura) by Ayush Patel, used under the MIT License.
 
 ### 🌍 Features
 
