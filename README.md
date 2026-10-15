@@ -110,7 +110,7 @@ flutter run
 
 ### 📃 License
 
-MIT License. See [LICENSE](./LICENSE). Original copyright belongs to Gaurav Kushwaha; keep his notice in the LICENSE file.
+MIT License. See [LICENSE](./LICENSE). Original copyright belongs to Ayush Patel; keep his notice in the LICENSE file.
 
 ### 👨🏻‍💻 Connect
 
