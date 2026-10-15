@@ -9,6 +9,10 @@ import 'package:http/http.dart' as http;
 
 class WeatherService {
   Future<Weather> fetchWeather({double? latitude, double? longitude}) async {
+    if ((latitude == null) != (longitude == null)) {
+      throw ArgumentError('Latitude and longitude must be provided together.');
+    }
+
     if (kDebugMode) {
       print('fetching');
     }
@@ -33,9 +37,10 @@ class WeatherService {
     }
     // print(position.latitude);
     // print(position.longitude);
-    String url =
-        'https://api.open-meteo.com/v1/forecast?latitude=${position.latitude}&longitude=${position.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,surface_pressure,visibility,wind_speed_10m,wind_direction_10m,uv_index,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant&timezone=Asia%2FBangkok&past_days=0&forecast_hours=24';
-    final Uri uri = Uri.parse(url);
+    final Uri uri = buildForecastUri(
+      latitude: position.latitude,
+      longitude: position.longitude,
+    );
     final http.Response response = await http.get(uri);
     if (response.statusCode == 200) {
       final String body = response.body;
@@ -44,6 +49,34 @@ class WeatherService {
     } else {
       throw Exception('Failed to Load Weather');
     }
+  }
+
+  static Uri buildForecastUri({
+    required double latitude,
+    required double longitude,
+  }) {
+    if (!latitude.isFinite || latitude < -90 || latitude > 90) {
+      throw ArgumentError.value(
+          latitude, 'latitude', 'Must be between -90 and 90.');
+    }
+    if (!longitude.isFinite || longitude < -180 || longitude > 180) {
+      throw ArgumentError.value(
+          longitude, 'longitude', 'Must be between -180 and 180.');
+    }
+
+    return Uri.https('api.open-meteo.com', '/v1/forecast', {
+      'latitude': '$latitude',
+      'longitude': '$longitude',
+      'current':
+          'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m',
+      'hourly':
+          'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,surface_pressure,visibility,wind_speed_10m,wind_direction_10m,uv_index,is_day',
+      'daily':
+          'weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant',
+      'timezone': 'auto',
+      'past_days': '0',
+      'forecast_hours': '24',
+    });
   }
 
   Future<Position> _determinePosition() async {
