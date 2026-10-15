@@ -1,111 +1,112 @@
-<div align="center">
-   <img width="250" height="250" src="readme_assets/circular_banner.png"/>
-   <h1>Aero Aura - Unleash the Weather</h1>
-</div>
-<div align="center">
+# Aero Aura
 
-![Flutter](https://img.shields.io/badge/Platform-Flutter-blue)
-![minSdkVersion](https://img.shields.io/badge/minSdkVersion-16-green.svg)
-[![License](https://img.shields.io/github/license/ayush-patel1/AeroAura?color=abc0d3)](./LICENSE)
+Aero Aura is a Flutter weather app for checking current conditions, hourly weather, and a seven-day forecast for the device location or saved cities. It uses Open-Meteo's public forecast API and does not require an API key.
 
-</div>
+## Features
 
-<p align='center'>Flutter weather app for Android with real-time conditions, hourly forecasts and a 7-day outlook for any city.</p>
+- Current conditions, weather description, sunrise and sunset, and weather metrics.
+- Hourly and daily forecasts, including temperature, precipitation, wind, and UV data.
+- Search for and save cities; their coordinates are stored locally.
+- Celsius/Fahrenheit, 12/24-hour time, and light/dark theme preferences.
+- Connectivity checks and a small local cache of the last displayed conditions.
 
-> Based on [AeroAura](https://github.com/ayush-patel1/AeroAura) by Ayush Patel, used under the MIT License.
+## Project Details
 
-### 🌍 Features
+- **Framework:** Flutter; minimum declared Dart SDK is 3.1.1.
+- **State:** Provider is used for settings; forecast data is loaded by screen-level futures.
+- **Navigation:** GoRouter.
+- **Network and location:** `http`, Open-Meteo, Geolocator, and platform geocoding.
+- **Local persistence:** SharedPreferences stores settings, saved-city coordinates, and limited home-screen fallback values.
+- **No backend or database:** there is no authentication, server, migration, or database schema in this repository. `sqflite` is declared but is not used by the current Dart source.
 
-- 🌟 **Current Weather:** real-time conditions for your location
-- 🌅 **Hourly Forecast:** plan your day hour by hour
-- 📆 **7-Day Forecast:** week-long outlook
-- 🌡️ **Detailed Metrics:** in-depth weather statistics
-- 🌆 **City Management:** search and save multiple cities
-- ⚙️ **Settings:** Celsius/Fahrenheit, 12h/24h time format, light/dark theme toggle
-- 📡 **Connectivity Checker:** handles offline state gracefully
-- 💥 **Auto Theme:** follows device theme mode
+## Architecture
 
-### <img width="35" src="https://logolook.net/wp-content/uploads/2021/07/Android-Emblem.png"/> Download APK
+```mermaid
+flowchart TD
+   UI[Flutter screens and widgets] --> Settings[SettingsProvider]
+   Settings --> Prefs[(SharedPreferences)]
+   UI --> WeatherService[WeatherService]
+   WeatherService --> OpenMeteo[Open-Meteo Forecast API]
+   UI --> LocationService[LocationService]
+   LocationService --> DeviceLocation[Geolocator]
+   LocationService --> ReverseGeocoding[Platform geocoding]
+   UI --> CitySearch[Country State City package]
+   UI --> Prefs
+```
 
-- [app-arm64-v8a-release](readme_assets/app-arm64-v8a-release.apk)
-- [app-armeabi-v7a-release](readme_assets/app-armeabi-v7a-release.apk)
-- [app-x86_64-release](readme_assets/app-x86_64-release.apk)
+`main.dart` initializes settings and routes. The home screen fetches device coordinates and a reverse-geocoded city, then requests current, hourly, and daily data. Saved cities retain coordinates in SharedPreferences and use the same weather service. Requests let Open-Meteo determine the timezone from the coordinates so forecast times are location-specific.
 
+## Local Setup
 
-### 🌐 Data Sources
-
-Weather from [Open-Meteo](https://open-meteo.com/en/docs) and city lookup from [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api).
-
-### 🧱 Tech Stack
-
-Flutter, Dart, Provider, GoRouter, REST APIs, SharedPreferences, SQLite (sqflite)
-
-### ⚒️ Dependencies
-
-<details>
-<summary>Click to expand</summary>
-
-* [http](https://pub.dev/packages/http)
-* [geolocator](https://pub.dev/packages/geolocator)
-* [geocoding](https://pub.dev/packages/geocoding)
-* [intl](https://pub.dev/packages/intl)
-* [go_router](https://pub.dev/packages/go_router)
-* [page_transition](https://pub.dev/packages/page_transition)
-* [shared_preferences](https://pub.dev/packages/shared_preferences)
-* [sqflite](https://pub.dev/packages/sqflite)
-* [provider](https://pub.dev/packages/provider)
-* [country_state_city](https://pub.dev/packages/country_state_city)
-* [connectivity_plus](https://pub.dev/packages/connectivity_plus)
-
-</details>
-
-### 📷 Screenshots
-
-| <img src="readme_assets/dashboard.png"/>      | <img src="readme_assets/nextweek.png"/>      | <img src="readme_assets/addcity.png"/>      | <img src="readme_assets/searchcity.png"/>      |
-|-----------------------------------------------|----------------------------------------------|---------------------------------------------|------------------------------------------------|
-| <img src="readme_assets/dashboard_dark.png"/> | <img src="readme_assets/nextweek_dark.png"/> | <img src="readme_assets/addcity_dark.png"/> | <img src="readme_assets/searchcity_dark.png"/> |
-| <img src="readme_assets/setting.jpg"/>        | <img src="readme_assets/setting_dark.jpg"/>  | <img src="readme_assets/internetcheck.png"/> | <img src="readme_assets/internetcheck_dark.png"/> |
-
-### 🚀 Run Locally
+Install Flutter with Dart 3.1.1 or newer, then run:
 
 ```bash
-git clone https://github.com/ayush-patel1/AeroAura.git
-cd AeroAura
 flutter pub get
 flutter run
 ```
 
-### ☑️ Roadmap
+No `.env` file or secret values are required. Location access is needed for device-location weather. Saved-city lookups and forecasts require network access.
 
-- [ ] Flexible measurement units (wind speed, precipitation, pressure)
-- [ ] Presentation video
+## Development Checks
 
-### 📂 Directory Structure
-
-```
-|-- lib
-|   |-- models
-|   |   |-- location.dart
-|   |   |-- weather.dart
-|   |-- screens
-|   |   |-- add_city_page
-|   |   |-- home
-|   |   |-- next_7_days
-|   |   |-- search_city_page
-|   |   |-- settings_page
-|   |-- services
-|   |   |-- location_service.dart
-|   |   |-- weather_service.dart
-|   |-- utils
-|   |-- widgets
-|   |-- main.dart
-|-- pubspec.yaml
+```bash
+flutter analyze
+flutter test
+dart format --output=none --set-exit-if-changed lib test
 ```
 
-### 📃 License
+Tests cover forecast request construction and geographic coordinate bounds. Run these checks in an installed Flutter environment before treating them as passing.
 
-MIT License. See [LICENSE](./LICENSE). Original copyright belongs to Ayush Patel; keep his notice in the LICENSE file.
+## API
 
-### 👨🏻‍💻 Connect
+The app calls `GET https://api.open-meteo.com/v1/forecast` with latitude and longitude, current/hourly/daily weather fields, `timezone=auto`, and a 24-hour hourly forecast window. The API is public and no application credential is configured. See the [Open-Meteo Forecast API documentation](https://open-meteo.com/en/docs).
 
-[LinkedIn](https://www.linkedin.com/in/ayush-patel05) | [GitHub](https://github.com/ayush-patel1) | [Portfolio](https://ayush-patel-dev.vercel.app/)
+City search uses bundled city data from `country_state_city`; reverse geocoding is provided by the platform through `geocoding`. There is no application-owned REST API.
+
+## Build and Deployment
+
+For a local Android release build:
+
+```bash
+flutter build apk --release
+```
+
+The Android release configuration currently uses debug signing and the application ID `com.example.aeroaura`; configure a unique ID and production signing credentials before publishing. iOS builds require macOS and Xcode signing. Platform deployment has not been verified in this environment.
+
+Previously generated APKs are retained under [`readme_assets`](readme_assets/). They are existing artifacts and do not demonstrate that the current source builds.
+
+- [ARM64 APK](readme_assets/app-arm64-v8a-release.apk)
+- [ARMv7 APK](readme_assets/app-armeabi-v7a-release.apk)
+- [x86_64 APK](readme_assets/app-x86_64-release.apk)
+
+## Known Limitations
+
+- Flutter is not installed in the current audit environment, so tests, analysis, and builds could not be run here.
+- Weather request failures and malformed API responses do not yet have a consistent typed error or user-facing retry flow.
+- Saved-city loading assumes well-formed persisted records; the missing-list case is not handled safely in all paths.
+- Location permission handling is duplicated between weather and location services.
+- Offline support caches a few home-screen values, not forecast data.
+- `sqflite` and `page_transition` are declared but do not appear in current Dart imports; verify dependency resolution and platform builds before removing them.
+- Existing platform and Flutter plugin versions have not been upgraded as part of this audit.
+
+## Credits and Attribution
+
+The existing Git history credits Ayush Patel from the initial commit onward, with subsequent commits documenting UI changes, bug fixes, and light/dark theme support. The existing MIT license names Gaurav Kushwaha as copyright holder; commit authorship and license copyright are distinct, and the original notice is preserved. This revision adds location-aware forecast requests, coordinate validation, and request-contract tests. Project maintainer details:
+
+- **Ayush Patel**, B.Tech in Information Technology, National Institute of Technology, Raipur (NIT Raipur), expected graduation 2027.
+- [GitHub](https://github.com/ayush-patel1) · [Portfolio](https://ayush-patel-dev.vercel.app/)
+
+This documentation describes the code in this repository; it does not claim third-party libraries, APIs, or inherited components as original work. Weather data is from [Open-Meteo](https://open-meteo.com/). Packages retain their respective licenses and notices. This repository is distributed under the [MIT License](LICENSE); retain its existing copyright and license text.
+
+## Screenshots
+
+| Light | Dark |
+| --- | --- |
+| ![Dashboard](readme_assets/dashboard.png) | ![Dark dashboard](readme_assets/dashboard_dark.png) |
+| ![Seven-day forecast](readme_assets/nextweek.png) | ![Dark seven-day forecast](readme_assets/nextweek_dark.png) |
+| ![Saved cities](readme_assets/addcity.png) | ![Dark saved cities](readme_assets/addcity_dark.png) |
+| ![City search](readme_assets/searchcity.png) | ![Dark city search](readme_assets/searchcity_dark.png) |
+
+## License
+
+MIT. See [LICENSE](LICENSE).
